@@ -1,0 +1,19 @@
+{%- comment -%}
+  Custom Shopify robots.txt to allow Google indexing blogs
+{%- endcomment -%}
+
+{% for group in robots.default_groups %}
+  {{- group.user_agent -}}
+
+  {% for rule in group.rules %}
+    {%- unless rule contains "/blogs/" -%}
+      {{- rule -}}
+    {%- endunless -%}
+  {% endfor %}
+
+  {{ 'Allow: /blogs/' }}
+
+  {%- if group.sitemap != blank -%}
+    {{ group.sitemap }}
+  {%- endif -%}
+{% endfor %}
