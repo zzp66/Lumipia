@@ -23,6 +23,10 @@
               {{- block.settings.text -}}
             </p>
           </div>
+        {% when 'payments_icons' %}
+          <div class="product__block product__block--{{ block.type }}">
+            {% render 'payments-icons' %}
+          </div>
         {%- when 'title' -%}
           <div
             class="product__block product__block--{{ block.type }}"

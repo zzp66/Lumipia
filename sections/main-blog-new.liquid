@@ -1,0 +1,98 @@
+{{ 'component-article-card.css' | asset_url | stylesheet_tag }}
+{{ 'section-main-blog.css' | asset_url | stylesheet_tag }}
+<style>
+  .main-blog-new {
+    margin: 100px 0;
+  }
+  .main-blog-new p {
+    margin: 0;
+  }
+  ul.blog-menu {
+    margin: 0;
+  }
+  ul.blog-menu li {
+    color: #b3848f;
+    list-style: none;
+    padding: 10px 20px;
+    border: 1px solid #b3848f;
+    text-align: center;
+    border-radius: 10px;
+    overflow: hidden;
+    cursor: pointer;
+  }
+  ul.blog-menu li.active {
+    color: #b3848f;
+    background-color: #f8f1f4;
+    font-weight: 600;
+  }
+  .blog-lists {
+    margin-top: 50px;
+  }
+  .blog-list-box {
+    display: none;
+  }
+</style>
+{%- assign blog_titles = section.settings.blog_titles | split: ',' -%}
+<div class="main-blog-new section section--padding">
+  <div class="main-blog-new-content page-width">
+    <ul class="blog-menu f-grid f-grid-3-cols md:f-grid-3-cols lg:f-grid-3-cols f-grid--gap-extra-large">
+      {% for blog_title in blog_titles %}
+        <li class="blog-menu-item blog-menu-{{ forloop.index }}" data-handle="{{ blog_title }}">{{ blog_title }}</li>
+      {% endfor %}
+    </ul>
+    <div class="blog-lists">
+      {% for blog_title in blog_titles %}
+        {% assign blog = blogs[blog_title] %}
+        <div class="blog-list-box blog-list-{{ forloop.index }}" data-handle="{{ blog_title }}">
+          <grid-list class="main-blog__items f-grid f-grid-1-cols md:f-grid-3-cols lg:f-grid-3-cols f-grid--gap-extra-large">
+            {% for article in blog.articles %}
+              {%- render 'card-article',
+                article: article,
+                show_date: true,
+                show_excerpt: true,
+                show_button: true,
+                index: forloop.index,
+                title_size: h3
+              -%}
+            {% endfor %}
+          </grid-list>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+<script type="text/javascript">
+  $(function () {
+    $('.blog-menu .blog-menu-item:first').addClass('active');
+    $('.blog-lists .blog-list-box:first').show();
+    $('.blog-menu .blog-menu-item').click(function () {
+      $(this).addClass('active').siblings().removeClass('active');
+      $('.blog-lists .blog-list-box')
+        .eq($('.blog-menu .blog-menu-item').index(this))
+        .show()
+        .siblings('.blog-lists .blog-list-box')
+        .hide();
+    });
+  });
+</script>
+
+{% schema %}
+{
+  "name": "Main Blog New",
+  "settings": [
+    {
+      "type": "textarea",
+      "id": "blog_titles",
+      "label": "所有blog类别",
+      "info": "填写所有blog类别，以英文逗号分隔，例如：News,Learn,Activity"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Main Blog New"
+    }
+  ]
+}
+{% endschema %}

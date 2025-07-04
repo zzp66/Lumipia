@@ -1,6 +1,29 @@
 {{ 'component-article-card.css' | asset_url | stylesheet_tag }}
 {{ 'section-main-article.css' | asset_url | stylesheet_tag }}
 
+<style>
+  .article-product-recommend {
+    margin-top: 40px;
+    padding: 10px 20px;
+    display: grid;
+    grid-template-columns: 30% 70%;
+    gap: 20px;
+    justify-content: center;
+    align-items: center;
+    border: 1px solid #b3848f;
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  .article-product-recommend .product-image {
+    display: flex;
+    justify-content: flex-start;
+  }
+  .article-product-recommend .product-image img {
+    max-height: 90px;
+    width: auto;
+  }
+</style>
+
 {% liquid
   assign loading = 'lazy'
   assign fetchpriority = 'low'
@@ -88,6 +111,29 @@
                 </div>
               {% endif %}
             </header>
+
+            {% assign product_handle = article.metafields.custom.article_product %}
+            {% assign linked_product = all_products[product_handle] %}
+            {% if linked_product != blank %}
+              <a href="{{ linked_product.url }}">
+                <div class="article-product-recommend">
+                  {% if linked_product.featured_image %}
+                    <div class="product-image">
+                      <img
+                        src="{{ linked_product.featured_image | image_url: master }}"
+                        alt="{{ linked_product.featured_image.alt | escape }}"
+                        loading="lazy"
+                      >
+                    </div>
+                  {% endif %}
+                  <div class="product-info">
+                    <p>{{ linked_product.title }}</p>
+                    <p>{{ linked_product.price | money }}</p>
+                  </div>
+                </div>
+              </a>
+            {% endif %}
+
           {%- when 'content' -%}
             <div class="article__block article__content rte" {{ block.shopify_attributes }}>{{ article.content }}</div>
           {%- when 'share' -%}
