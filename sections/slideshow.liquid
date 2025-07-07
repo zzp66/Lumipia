@@ -245,6 +245,15 @@
               </div>
             </div>
           </div>
+          <a
+            {% if block.settings.button_link != blank %}
+              href="{{ block.settings.button_link }}"
+            {% else %}
+              aria-disabled="true"
+              disabled
+            {% endif %}
+            class="slide-a-link"
+          ></a>
         </div>
       {%- endfor -%}
     </div>

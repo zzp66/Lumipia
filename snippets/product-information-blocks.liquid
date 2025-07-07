@@ -1,5 +1,6 @@
 {%- liquid
   assign product_form_id = 'product-form-' | append: section.id
+  assign url_parts = request.path | split: '/'
 -%}
 <div
   id="ProductInfo-{{ section.id }}"
@@ -23,6 +24,13 @@
               {{- block.settings.text -}}
             </p>
           </div>
+        {% when 'special_option' %}
+          {% unless product.metafields.custom.product_info_special_option.value == false %}
+            <div class="product__block product__block--{{ block.type }}">
+              {% render 'special-option', block: block, url_parts: url_parts %}
+            </div>
+          {% endunless %}
+
         {% when 'payments_icons' %}
           <div class="product__block product__block--{{ block.type }}">
             {% render 'payments-icons' %}

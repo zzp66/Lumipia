@@ -1,0 +1,52 @@
+<style>
+  .so-product-item {
+    width: 100%;
+    display: flex;
+    gap: 20px;
+    justify-content: flex-start;
+    align-items: center;
+    border: 2px solid;
+    border-color: #e5e7eb;
+    background-color: #fff;
+    padding: 10px 20px;
+    margin: 10px 0;
+    border-radius: 16px;
+    overflow: hidden;
+  }
+  .so-product-item.item-active {
+    border-color: #b3848f;
+    background-color: #f8f8f8;
+  }
+  .so-product-item.item-active .sp-product-info {
+    font-weight: 600;
+  }
+  .sp-product-info {
+    width: 100%;
+    display: flex;
+    gap: 20px;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .so-product-item-img {
+    display: flex;
+    max-width: 65px;
+  }
+</style>
+<div class="product-block-special-option">
+  <div class="so-title font-body-bold">{{ block.settings.so_title }}</div>
+  <div class="so-products">
+    {% for item in block.settings.so_products %}
+      <a href="{{ item.url }}" class="so-product-item-box">
+        <div class="so-product-item {% if url_parts contains item.handle %}item-active{% endif %}">
+          <div class="so-product-item-img">
+            <img src="{{ item.featured_image | image_url: width: master }}" alt="">
+          </div>
+          <div class="sp-product-info">
+            <div class="so-product-title">{{ item.title }}</div>
+            <div class="so-product-price">{{ item.price | money }}</div>
+          </div>
+        </div>
+      </a>
+    {% endfor %}
+  </div>
+</div>
