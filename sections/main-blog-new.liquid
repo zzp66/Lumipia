@@ -29,54 +29,75 @@
     margin-top: 50px;
   }
   .blog-list-box {
-    display: none;
+    /* display: none; */
   }
 </style>
-{%- assign blog_titles = section.settings.blog_titles | split: ',' -%}
 <div class="main-blog-new section section--padding">
   <div class="main-blog-new-content page-width">
-    <ul class="blog-menu f-grid f-grid-3-cols md:f-grid-3-cols lg:f-grid-3-cols f-grid--gap-extra-large">
-      {% for blog_title in blog_titles %}
-        <li class="blog-menu-item blog-menu-{{ forloop.index }}" data-handle="{{ blog_title }}">{{ blog_title }}</li>
-      {% endfor %}
-    </ul>
+    <div class="main-blog__block main-blog__tags">
+      <div class="swipe-mobile text-center">
+        <ul class="blog-menu inline-flex items-center flex-nowrap md:flex-wrap font-navigation">
+          <li class="{% unless current_tags %}active{% endunless %}">
+            <a href="{{ blog.url }}">All</a>
+          </li>
+          {% for tag in blog.all_tags %}
+            <li
+              class="blog-menu-item blog-menu-{{ forloop.index }} {% if current_tags contains tag %}active{% endif %}"
+              data-handle="{{ tag }}"
+            >
+              <a href="{{ blog.url }}/tagged/{{ tag | handle }}">{{ tag }}</a>
+            </li>
+          {% endfor %}
+        </ul>
+      </div>
+    </div>
     <div class="blog-lists">
-      {% for blog_title in blog_titles %}
-        {% assign blog = blogs[blog_title] %}
-        <div class="blog-list-box blog-list-{{ forloop.index }}" data-handle="{{ blog_title }}">
-          <grid-list class="main-blog__items f-grid f-grid-1-cols md:f-grid-3-cols lg:f-grid-3-cols f-grid--gap-extra-large">
-            {% for article in blog.articles %}
-              {%- render 'card-article',
-                article: article,
-                show_date: true,
-                show_excerpt: true,
-                show_button: true,
-                index: forloop.index,
-                title_size: h3
-              -%}
-            {% endfor %}
-          </grid-list>
-        </div>
-      {% endfor %}
+      {%- paginate blog.articles by 6 -%}
+        {% if current_tags %}
+          <div class="blog-list-box blog-list-{{ forloop.index }}" data-handle="{{ blog_title }}">
+            <grid-list class="main-blog__items f-grid f-grid-1-cols md:f-grid-3-cols lg:f-grid-3-cols f-grid--gap-extra-large">
+              {% for article in blog.articles %}
+                {% if article.tags contains current_tags.first %}
+                  {%- render 'card-article',
+                    article: article,
+                    show_date: true,
+                    show_excerpt: true,
+                    show_button: true,
+                    index: forloop.index,
+                    title_size: h3
+                  -%}
+                {% endif %}
+              {% endfor %}
+            </grid-list>
+            {%- if paginate.pages > 1 -%}
+              {%- render 'pagination', paginate: paginate -%}
+            {%- endif -%}
+          </div>
+        {% else %}
+          <div class="blog-list-box blog-list-{{ forloop.index }}" data-handle="{{ blog_title }}">
+            <grid-list class="main-blog__items f-grid f-grid-1-cols md:f-grid-3-cols lg:f-grid-3-cols f-grid--gap-extra-large">
+              {% for article in blog.articles %}
+                {%- render 'card-article',
+                  article: article,
+                  show_date: true,
+                  show_excerpt: true,
+                  show_button: true,
+                  index: forloop.index,
+                  title_size: h3
+                -%}
+              {% endfor %}
+            </grid-list>
+            {%- if paginate.pages > 1 -%}
+              {%- render 'pagination', paginate: paginate -%}
+            {%- endif -%}
+          </div>
+        {% endif %}
+      {% endpaginate %}
     </div>
   </div>
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
-<script type="text/javascript">
-  $(function () {
-    $('.blog-menu .blog-menu-item:first').addClass('active');
-    $('.blog-lists .blog-list-box:first').show();
-    $('.blog-menu .blog-menu-item').click(function () {
-      $(this).addClass('active').siblings().removeClass('active');
-      $('.blog-lists .blog-list-box')
-        .eq($('.blog-menu .blog-menu-item').index(this))
-        .show()
-        .siblings('.blog-lists .blog-list-box')
-        .hide();
-    });
-  });
-</script>
 
 {% schema %}
 {
