@@ -67,184 +67,6 @@
           data-color-scheme="color-{{ block.settings.color_scheme }}"
           {{ block.shopify_attributes }}
         >
-          <div
-            class="slideshow__item-wrap"
-            {% if slide_height == 'adapt' and slider_layout != 'split' %}
-              style="--aspect-ratio: {{ aspect_ratio }};--aspect-ratio-mobile: {{ aspect_ratio_mobile }};"
-            {% endif %}
-          >
-            <div
-              class="slideshow__bg bg-image overflow-hidden{% if slider_layout == 'centered' %} blocks-radius{% endif %}"
-              style="--aspect-ratio: {{ aspect_ratio }};--aspect-ratio-mobile: {{ aspect_ratio_mobile }};"
-            >
-              {%- case block.type -%}
-                {%- when 'video' -%}
-                  <motion-element
-                    hold
-                    data-motion="zoom-out"
-                    class="block media {% if slide_height == 'adapt' %} absolute inset-full{% else %} w-full h-full{% endif %}"
-                    {% if slide_height == 'adapt' %}
-                      style="--media-ratio: {{ aspect_ratio }}; --media-ratio-mobile: {{ aspect_ratio_mobile }};"
-                    {% endif %}
-                  >
-                    {%- render 'video',
-                      sizes: '100vw',
-                      loading: loading,
-                      fetchpriority: fetchpriority,
-                      video: block.settings.video,
-                      video_url: block.settings.video_url,
-                      muted: true,
-                      autoplay: false,
-                      loop: true,
-                      description: block.settings.video_description,
-                      cover_image: block.settings.cover_image,
-                      show_play_button: false
-                    -%}
-                  </motion-element>
-                {%- else -%}
-                  {%- liquid
-                    assign background_default = block.settings.background
-                    assign background_mobile = block.settings.background_mobile
-                  -%}
-                  <div class="slideshow__slide-bg absolute inset-full">
-                    {%- if background_default == blank -%}
-                      <motion-element
-                        data-motion="zoom-out"
-                        hold
-                        class="slideshow__slide-placeholder h-full{% if background_mobile != blank %} hidden md:block{% else %} block{% endif %}"
-                      >
-                        {% capture current %}{% cycle 1, 2 %}{% endcapture %}
-                        {{ 'lifestyle-' | append: current | placeholder_svg_tag: 'placeholder-svg w-full h-full' }}
-                      </motion-element>
-                    {%- endif -%}
-                    {%- if background_default != blank or background_mobile != blank -%}
-                      {%- capture sizes -%}
-                        {%- if section.settings.container == 'full' -%}{%- if section.settings.layout == 'centered' -%}70vw{%- else -%}100vw{%- endif -%}{%- else -%}min({{ settings.page_width }}, 100vw){%- endif -%}
-                      {%- endcapture -%}
-                      <motion-element
-                        class="w-full h-full block{% if background_default == blank %} md:hidden{% endif %}"
-                        data-motion="zoom-out"
-                        hold
-                      >
-                        <picture class="media media--height media-wrapper block w-full h-full relative overflow-hidden">
-                          {%- if background_default != blank and background_mobile != blank -%}
-                            <source
-                              media="(max-width: 767px)"
-                              srcset="{{ background_mobile | image_url: width: '400x' }} 400w, {{ background_mobile | image_url: width: '600x' }} 600w, {{ background_mobile | image_url: width: '800x' }} 800w, {{ background_mobile | image_url: width: '1000x' }} 1000w"
-                              width="{{ background_mobile.width }}"
-                              height="{{ background_mobile.height }}"
-                            >
-                          {%- endif -%}
-                          {%- liquid
-                            if background_default == blank
-                              assign background_default = background_mobile
-                            endif
-
-                            assign background_default_height = background_default.width | divided_by: background_default.aspect_ratio
-                            assign background_default_alt = background_default.alt | default: shop.name | escape
-                          -%}
-                          {{-
-                            background_default
-                            | image_url: width: 1500
-                            | image_tag:
-                              loading: loading,
-                              width: background_default.width,
-                              height: background_default_height,
-                              alt: background_default_alt,
-                              fetchpriority: fetchpriority,
-                              sizes: sizes,
-                              widths: '300,400,500,600,700,800,900,1000,1200,1300,1400,1600,1800,2000,2200,2400,2600,2800,3000,3200',
-                              is: 'image-lazy'
-                          -}}
-                        </picture>
-                      </motion-element>
-                    {%- endif -%}
-                  </div>
-              {%- endcase -%}
-              {%- if block.settings.image_overlay_opacity > 0 -%}
-                <div
-                  class="slideshow__overlay bg-overlay"
-                  style="--color-overlay-alpha: {{ block.settings.image_overlay_opacity }}"
-                ></div>
-              {%- endif -%}
-            </div>
-            {%- liquid
-              assign text_alignment = block.settings.text_alignment
-              assign description_size = block.settings.description_size
-              assign animate_delay = 250
-            -%}
-            <div
-              class="slideshow__content content-overlay--{{ block.settings.content_position_mobile }} md:content-overlay--{{ block.settings.content_position }} flex flex-col page-width focus-none color-{{ block.settings.color_scheme }}{% if show_text_below and slider_layout != 'split' %} mobile-color-scheme-1{% endif %}{% if color_scheme_inherit %} color-scheme-inherit{% endif %}{% if block.settings.show_content_in_container %} slideshow__content--in-container{% endif %}"
-              tabindex="-1"
-            >
-              <div class="slideshow__text rich-text text-{{ text_alignment_mobile }} md:text-{{ text_alignment }}">
-                {%- unless block.settings.subheading == blank -%}
-                  <div class="slideshow__subtitle rich-text__subheading text-subheading">
-                    <motion-element
-                      data-motion="fade-up"
-                      data-motion-delay="{{ animate_delay }}"
-                      data-text
-                      hold
-                      class="block"
-                    >
-                      {{- block.settings.subheading -}}
-                    </motion-element>
-                  </div>
-                  {%- assign animate_delay = animate_delay | plus: 100 -%}
-                {%- endunless -%}
-                {%- unless block.settings.title == blank -%}
-                  <h2 class="slideshow__title {{ block.settings.heading_size }} rich-text__heading">
-                    <motion-element
-                      data-motion="fade-up"
-                      data-motion-delay="{{ animate_delay }}"
-                      data-text
-                      hold
-                      class="block"
-                    >
-                      {{- block.settings.title -}}
-                    </motion-element>
-                  </h2>
-                  {%- assign animate_delay = animate_delay | plus: 100 -%}
-                {%- endunless -%}
-                {%- unless block.settings.description == blank -%}
-                  <motion-element
-                    class="block slideshow__description {{ description_size }} rich-text__text rte"
-                    data-motion="fade-up"
-                    data-motion-delay="{{ animate_delay }}"
-                    data-text
-                    hold
-                  >
-                    {{- block.settings.description -}}
-                  </motion-element>
-                  {%- assign animate_delay = animate_delay | plus: 100 -%}
-                {%- endunless -%}
-                {%- unless block.settings.button_label == blank -%}
-                  <div class="slideshow__buttons rich-text__button">
-                    <motion-element
-                      data-motion="fade-up"
-                      data-motion-delay="{{ animate_delay }}"
-                      data-text
-                      hold
-                      class="block"
-                    >
-                      <a
-                        {% if block.settings.button_link != blank %}
-                          href="{{ block.settings.button_link }}"
-                        {% else %}
-                          aria-disabled="true"
-                          disabled
-                        {% endif %}
-                        class="btn {{ block.settings.button_style }}"
-                      >
-                        {{- block.settings.button_label -}}
-                      </a>
-                    </motion-element>
-                  </div>
-                  {%- assign animate_delay = animate_delay | plus: 100 -%}
-                {%- endunless -%}
-              </div>
-            </div>
-          </div>
           <a
             {% if block.settings.button_link != blank %}
               href="{{ block.settings.button_link }}"
@@ -253,7 +75,197 @@
               disabled
             {% endif %}
             class="slide-a-link"
-          ></a>
+          >
+            <div
+              class="slideshow__item-wrap"
+              {% if slide_height == 'adapt' and slider_layout != 'split' %}
+                style="--aspect-ratio: {{ aspect_ratio }};--aspect-ratio-mobile: {{ aspect_ratio_mobile }};"
+              {% endif %}
+            >
+              <div
+                class="slideshow__bg bg-image overflow-hidden{% if slider_layout == 'centered' %} blocks-radius{% endif %}"
+                style="--aspect-ratio: {{ aspect_ratio }};--aspect-ratio-mobile: {{ aspect_ratio_mobile }};"
+              >
+                {%- case block.type -%}
+                  {%- when 'video' -%}
+                    <motion-element
+                      hold
+                      data-motion="zoom-out"
+                      class="block media {% if slide_height == 'adapt' %} absolute inset-full{% else %} w-full h-full{% endif %}"
+                      {% if slide_height == 'adapt' %}
+                        style="--media-ratio: {{ aspect_ratio }}; --media-ratio-mobile: {{ aspect_ratio_mobile }};"
+                      {% endif %}
+                    >
+                      {%- render 'video',
+                        sizes: '100vw',
+                        loading: loading,
+                        fetchpriority: fetchpriority,
+                        video: block.settings.video,
+                        video_url: block.settings.video_url,
+                        muted: true,
+                        autoplay: false,
+                        loop: true,
+                        description: block.settings.video_description,
+                        cover_image: block.settings.cover_image,
+                        show_play_button: false
+                      -%}
+                    </motion-element>
+                  {%- else -%}
+                    {%- liquid
+                      assign background_default = block.settings.background
+                      assign background_mobile = block.settings.background_mobile
+                    -%}
+                    <div class="slideshow__slide-bg absolute inset-full">
+                      {%- if background_default == blank -%}
+                        <motion-element
+                          data-motion="zoom-out"
+                          hold
+                          class="slideshow__slide-placeholder h-full{% if background_mobile != blank %} hidden md:block{% else %} block{% endif %}"
+                        >
+                          {% capture current %}{% cycle 1, 2 %}{% endcapture %}
+                          {{ 'lifestyle-' | append: current | placeholder_svg_tag: 'placeholder-svg w-full h-full' }}
+                        </motion-element>
+                      {%- endif -%}
+                      {%- if background_default != blank or background_mobile != blank -%}
+                        {%- capture sizes -%}
+                        {%- if section.settings.container == 'full' -%}{%- if section.settings.layout == 'centered' -%}70vw{%- else -%}100vw{%- endif -%}{%- else -%}min({{ settings.page_width }}, 100vw){%- endif -%}
+                      {%- endcapture -%}
+                        <motion-element
+                          class="w-full h-full block{% if background_default == blank %} md:hidden{% endif %}"
+                          data-motion="zoom-out"
+                          hold
+                        >
+                          <picture class="media media--height media-wrapper block w-full h-full relative overflow-hidden">
+                            {%- if background_default != blank and background_mobile != blank -%}
+                              <source
+                                media="(max-width: 767px)"
+                                srcset="{{ background_mobile | image_url: width: '400x' }} 400w, {{ background_mobile | image_url: width: '600x' }} 600w, {{ background_mobile | image_url: width: '800x' }} 800w, {{ background_mobile | image_url: width: '1000x' }} 1000w"
+                                width="{{ background_mobile.width }}"
+                                height="{{ background_mobile.height }}"
+                              >
+                            {%- endif -%}
+                            {%- liquid
+                              if background_default == blank
+                                assign background_default = background_mobile
+                              endif
+
+                              assign background_default_height = background_default.width | divided_by: background_default.aspect_ratio
+                              assign background_default_alt = background_default.alt | default: shop.name | escape
+                            -%}
+                            {{-
+                              background_default
+                              | image_url: width: 1500
+                              | image_tag:
+                                loading: loading,
+                                width: background_default.width,
+                                height: background_default_height,
+                                alt: background_default_alt,
+                                fetchpriority: fetchpriority,
+                                sizes: sizes,
+                                widths: '300,400,500,600,700,800,900,1000,1200,1300,1400,1600,1800,2000,2200,2400,2600,2800,3000,3200',
+                                is: 'image-lazy'
+                            -}}
+                          </picture>
+                        </motion-element>
+                      {%- endif -%}
+                    </div>
+                {%- endcase -%}
+                {%- if block.settings.image_overlay_opacity > 0 -%}
+                  <div
+                    class="slideshow__overlay bg-overlay"
+                    style="--color-overlay-alpha: {{ block.settings.image_overlay_opacity }}"
+                  ></div>
+                {%- endif -%}
+              </div>
+              {%- liquid
+                assign text_alignment = block.settings.text_alignment
+                assign description_size = block.settings.description_size
+                assign animate_delay = 250
+              -%}
+              <div
+                class="slideshow__content content-overlay--{{ block.settings.content_position_mobile }} md:content-overlay--{{ block.settings.content_position }} flex flex-col page-width focus-none color-{{ block.settings.color_scheme }}{% if show_text_below and slider_layout != 'split' %} mobile-color-scheme-1{% endif %}{% if color_scheme_inherit %} color-scheme-inherit{% endif %}{% if block.settings.show_content_in_container %} slideshow__content--in-container{% endif %}"
+                tabindex="-1"
+              >
+                <div class="slideshow__text rich-text text-{{ text_alignment_mobile }} md:text-{{ text_alignment }}">
+                  {%- unless block.settings.subheading == blank -%}
+                    <div class="slideshow__subtitle rich-text__subheading text-subheading">
+                      <motion-element
+                        data-motion="fade-up"
+                        data-motion-delay="{{ animate_delay }}"
+                        data-text
+                        hold
+                        class="block"
+                      >
+                        {{- block.settings.subheading -}}
+                      </motion-element>
+                    </div>
+                    {%- assign animate_delay = animate_delay | plus: 100 -%}
+                  {%- endunless -%}
+                  {%- unless block.settings.title == blank -%}
+                    <h2 class="slideshow__title {{ block.settings.heading_size }} rich-text__heading">
+                      <motion-element
+                        data-motion="fade-up"
+                        data-motion-delay="{{ animate_delay }}"
+                        data-text
+                        hold
+                        class="block"
+                      >
+                        {{- block.settings.title -}}
+                      </motion-element>
+                    </h2>
+                    {%- assign animate_delay = animate_delay | plus: 100 -%}
+                  {%- endunless -%}
+                  {%- unless block.settings.description == blank -%}
+                    <motion-element
+                      class="block slideshow__description {{ description_size }} rich-text__text rte"
+                      data-motion="fade-up"
+                      data-motion-delay="{{ animate_delay }}"
+                      data-text
+                      hold
+                    >
+                      {{- block.settings.description -}}
+                    </motion-element>
+                    {%- assign animate_delay = animate_delay | plus: 100 -%}
+                  {%- endunless -%}
+                  {%- unless block.settings.button_label == blank -%}
+                    <div class="slideshow__buttons rich-text__button">
+                      <motion-element
+                        data-motion="fade-up"
+                        data-motion-delay="{{ animate_delay }}"
+                        data-text
+                        hold
+                        class="block"
+                      >
+                        <button
+                          {% if block.settings.button_link != blank %}
+                            data-link="{{ block.settings.button_link }}"
+                          {% else %}
+                            aria-disabled="true"
+                            disabled
+                          {% endif %}
+                          class="btn {{ block.settings.button_style }} btn-a-link"
+                        >
+                          {{- block.settings.button_label -}}
+                        </button>
+                      </motion-element>
+                    </div>
+                    {%- assign animate_delay = animate_delay | plus: 100 -%}
+                  {%- endunless -%}
+                </div>
+              </div>
+            </div>
+          </a>
+          {% comment %}
+            <a
+              {% if block.settings.button_link != blank %}
+                href="{{ block.settings.button_link }}"
+              {% else %}
+                aria-disabled="true"
+                disabled
+              {% endif %}
+              class="slide-a-link"
+            ></a>
+          {% endcomment %}
         </div>
       {%- endfor -%}
     </div>
@@ -264,6 +276,24 @@
     {%- endif -%}
   </slideshow-component>
 </div>
+
+<script>
+  // 获取所有具有 btn-a-link 类的按钮
+  const buttons = document.querySelectorAll('.btn-a-link');
+
+  // 为每个按钮添加点击事件监听器
+  buttons.forEach((button) => {
+    button.addEventListener('click', function () {
+      // 获取当前按钮的 data-link 属性值
+      const link = this.getAttribute('data-link');
+
+      // 如果存在链接，则跳转
+      if (link) {
+        window.location.href = link;
+      }
+    });
+  });
+</script>
 
 {% schema %}
 {
